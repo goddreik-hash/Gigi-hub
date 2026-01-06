@@ -1,0 +1,380 @@
+--// Servicios
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+
+local player = Players.LocalPlayer
+
+--// Colores
+local mainColor = Color3.fromRGB(30, 30, 45)
+local accentColor = Color3.fromRGB(180, 0, 255)
+local buttonColor = Color3.fromRGB(40, 40, 55)
+local hoverColor = Color3.fromRGB(70, 0, 180)
+local textColor = Color3.fromRGB(255, 255, 255)
+local neonColor = Color3.fromRGB(180, 0, 255)
+local circleColor = Color3.fromRGB(255, 255, 100) -- amarillo
+
+--// ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "GigiHubGUI"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = game:GetService("CoreGui")
+
+--// Función para crear el GUI principal
+local function startGUI()
+    --// Main Hub frame
+    local mainFrame = Instance.new("Frame")
+    mainFrame.Size = UDim2.new(0, 320, 0, 200)
+    mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+    mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+    mainFrame.BackgroundColor3 = mainColor
+    mainFrame.BorderSizePixel = 0
+    mainFrame.Visible = true
+    mainFrame.Parent = screenGui
+
+    local mainCorner = Instance.new("UICorner")
+    mainCorner.CornerRadius = UDim.new(0, 15)
+    mainCorner.Parent = mainFrame
+
+    --// Título + decoración
+    local titleFrame = Instance.new("Frame")
+    titleFrame.Size = UDim2.new(1, 0, 0, 40)
+    titleFrame.BackgroundTransparency = 1
+    titleFrame.Position = UDim2.new(0, 0, 0, 0)
+    titleFrame.Parent = mainFrame
+
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(0.6, 0, 1, 0)
+    title.Position = UDim2.new(0.05, 0, 0, 0)
+    title.BackgroundTransparency = 1
+    title.Text = "Gigi Hub ✨"
+    title.TextColor3 = accentColor
+    title.Font = Enum.Font.GothamBold
+    title.TextSize = 20
+    title.TextXAlignment = Enum.TextXAlignment.Left
+    title.Parent = titleFrame
+
+    -- Neon/Glow efecto
+    local titleStroke = Instance.new("UIStroke")
+    titleStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    titleStroke.Color = neonColor
+    titleStroke.Thickness = 2
+    titleStroke.Parent = title
+
+    --// Estrellas parpadeantes
+    local stars = {}
+    for i = 1, 5 do
+        local star = Instance.new("TextLabel")
+        star.Size = UDim2.new(0, 15, 0, 15)
+        star.Position = UDim2.new(0, 120 + i*20, 0, 10)
+        star.BackgroundTransparency = 1
+        star.Text = "★"
+        star.Font = Enum.Font.GothamBold
+        star.TextSize = 16
+        star.TextColor3 = neonColor
+        star.Parent = titleFrame
+        table.insert(stars, star)
+    end
+
+    spawn(function()
+        while true do
+            for _, star in pairs(stars) do
+                star.TextColor3 = Color3.fromRGB(math.random(150,255),0,255)
+            end
+            wait(0.3)
+        end
+    end)
+
+    --// Líneas decorativas de neón alrededor del GUI
+    local lines = {}
+    local function crearLinea(pos, size)
+        local line = Instance.new("Frame")
+        line.Size = size
+        line.Position = pos
+        line.BackgroundColor3 = neonColor
+        line.BorderSizePixel = 0
+        line.Parent = mainFrame
+        local stroke = Instance.new("UIStroke")
+        stroke.Color = neonColor
+        stroke.Thickness = 2
+        stroke.Parent = line
+        table.insert(lines, line)
+        return line
+    end
+
+    local topLine = crearLinea(UDim2.new(0,0,0,0), UDim2.new(1,0,0,2)) -- top
+    local bottomLine = crearLinea(UDim2.new(0,0,1,-2), UDim2.new(1,0,0,2)) -- bottom
+    local leftLine = crearLinea(UDim2.new(0,0,0,0), UDim2.new(0,2,1,0)) -- left
+    local rightLine = crearLinea(UDim2.new(1,-2,0,0), UDim2.new(0,2,1,0)) -- right
+
+    --// Círculos amarillos parpadeantes en las líneas
+    local circles = {}
+    local function crearCirculos(line, cantidad, horizontal)
+        for i = 1, cantidad do
+            local circ = Instance.new("Frame")
+            circ.Size = UDim2.new(0, 6, 0, 6)
+            if horizontal then
+                circ.Position = UDim2.new((i-1)/(cantidad-1), 0, 0, -2)
+            else
+                circ.Position = UDim2.new(0, -2, (i-1)/(cantidad-1), 0)
+            end
+            circ.BackgroundColor3 = circleColor
+            circ.AnchorPoint = Vector2.new(0.5,0.5)
+            circ.BorderSizePixel = 0
+            circ.Parent = line
+            table.insert(circles, circ)
+        end
+    end
+
+    crearCirculos(topLine, 8, true)
+    crearCirculos(bottomLine, 8, true)
+    crearCirculos(leftLine, 6, false)
+    crearCirculos(rightLine, 6, false)
+
+    spawn(function()
+        while true do
+            for _, c in pairs(circles) do
+                c.BackgroundColor3 = Color3.fromRGB(200 + math.random(0,55),200 + math.random(0,55),50)
+            end
+            wait(0.3)
+        end
+    end)
+
+    --// Close button
+    local closeButton = Instance.new("TextButton")
+    closeButton.Size = UDim2.new(0, 28, 0, 28)
+    closeButton.Position = UDim2.new(1, -35, 0, 6)
+    closeButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+    closeButton.Text = "X"
+    closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    closeButton.Font = Enum.Font.GothamBold
+    closeButton.TextSize = 18
+    closeButton.Parent = mainFrame
+
+    local closeCorner = Instance.new("UICorner")
+    closeCorner.CornerRadius = UDim.new(0, 5)
+    closeCorner.Parent = closeButton
+
+    closeButton.MouseEnter:Connect(function()
+        closeButton.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
+    end)
+    closeButton.MouseLeave:Connect(function()
+        closeButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+    end)
+
+    --// Mini logo
+    local miniLogo = Instance.new("TextButton")
+    miniLogo.Size = UDim2.new(0, 140, 0, 40)
+    miniLogo.Position = UDim2.new(0.5, 0, 0.9, 0)
+    miniLogo.AnchorPoint = Vector2.new(0.5, 0.5)
+    miniLogo.BackgroundColor3 = mainColor
+    miniLogo.Text = "Gigi Hub ✨"
+    miniLogo.TextColor3 = accentColor
+    miniLogo.Font = Enum.Font.GothamBold
+    miniLogo.TextSize = 16
+    miniLogo.Parent = screenGui
+    miniLogo.Visible = false
+
+    local miniCorner = Instance.new("UICorner")
+    miniCorner.CornerRadius = UDim.new(0, 10)
+    miniCorner.Parent = miniLogo
+
+    --// Tween helper
+    local function tweenGui(gui, props, time)
+        local tweenInfo = TweenInfo.new(time, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+        local tween = TweenService:Create(gui, tweenInfo, props)
+        tween:Play()
+    end
+
+    --// Close logic
+    closeButton.MouseButton1Click:Connect(function()
+        tweenGui(mainFrame, {Position = UDim2.new(0.5, 0, 1.2, 0)}, 0.3)
+        wait(0.3)
+        mainFrame.Visible = false
+        miniLogo.Position = UDim2.new(0.5, 0, 1.2, 0)
+        miniLogo.Visible = true
+        tweenGui(miniLogo, {Position = UDim2.new(0.5, 0, 0.9, 0)}, 0.3)
+    end)
+
+    miniLogo.MouseButton1Click:Connect(function()
+        miniLogo.Visible = false
+        mainFrame.Position = UDim2.new(0.5, 0, -0.2, 0)
+        mainFrame.Visible = true
+        tweenGui(mainFrame, {Position = UDim2.new(0.5, 0, 0.5, 0)}, 0.3)
+    end)
+
+    --// Draggable
+    local function makeDraggable(frame)
+        local dragging = false
+        local dragStart = Vector2.new()
+        local startPos = UDim2.new()
+
+        frame.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                dragging = true
+                dragStart = input.Position
+                startPos = frame.Position
+                input.Changed:Connect(function()
+                    if input.UserInputState == Enum.UserInputState.End then
+                        dragging = false
+                    end
+                end)
+            end
+        end)
+
+        frame.InputChanged:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+                dragInput = input
+            end
+        end)
+
+        UserInputService.InputChanged:Connect(function(input)
+            if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+                local delta = input.Position - dragStart
+                frame.Position = UDim2.new(
+                    startPos.X.Scale,
+                    startPos.X.Offset + delta.X,
+                    startPos.Y.Scale,
+                    startPos.Y.Offset + delta.Y
+                )
+            end
+        end)
+    end
+
+    makeDraggable(mainFrame)
+    makeDraggable(miniLogo)
+
+    --// Botones
+    local permadeathActive = false
+    local buttonNames = {"Block Drop", "Elemental Hub", "Permadeath", "Reset"}
+    local buttonFunctions = {
+        -- Block Drop
+        function() 
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/GamerReady/Block-Drop/main/BlockDrop.lua", true))()
+        end,
+        -- Elemental Hub
+        function() 
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/GamerReady/Elemental-hub-v2-cracked/main/Elemental-hub-v2-cracked", true))()
+        end,
+        -- Permadeath
+        function(btn)
+            permadeathActive = not permadeathActive
+            if permadeathActive then
+                btn.Text = "Permadeath ON"
+                btn.TextColor3 = Color3.fromRGB(0, 255, 0) -- verde neón
+
+                -- Código de Permadeath real
+                local StarterGui = game:GetService("StarterGui")
+                local Players = game:GetService("Players")
+                local Player = Players.LocalPlayer
+
+                StarterGui:SetCore("SendNotification",{Title = "Permadeath",Text = "Please wait "..Players.RespawnTime.." seconds"})
+
+                replicatesignal(Player.ConnectDiedSignalBackend)
+                task.wait(Players.RespawnTime + 0.20)
+                replicatesignal(Player.Kill)
+
+                local RespawnEvent = Instance.new("BindableEvent")
+                RespawnEvent.Event:Once(function()
+                    StarterGui:SetCore("SendNotification",{Title = "Respawning",Text = "Please wait "..Players.RespawnTime.." seconds"})
+                    StarterGui:SetCore("ResetButtonCallback", true)    
+                    replicatesignal(Player.ConnectDiedSignalBackend)
+                end)
+
+                StarterGui:SetCore("ResetButtonCallback", RespawnEvent)
+            else
+                btn.Text = "Permadeath OFF"
+                btn.TextColor3 = textColor
+            end
+        end,
+        -- Reset
+        function()
+            local Players = game:GetService("Players")
+            local player = Players.LocalPlayer
+            player:LoadCharacter()
+        end
+    }
+
+    -- Crear los botones
+    for i, name in ipairs(buttonNames) do
+        local btn = Instance.new("TextButton")
+        btn.Size = UDim2.new(0, 150, 0, 35)
+        btn.Position = UDim2.new(0.5, 0, 0.25 + (i-1)*0.20, 0)
+        btn.AnchorPoint = Vector2.new(0.5, 0)
+        btn.BackgroundColor3 = buttonColor
+        btn.Text = name
+        btn.TextColor3 = textColor
+        btn.Font = Enum.Font.GothamBold
+        btn.TextSize = 16
+        btn.Parent = mainFrame
+
+        local btnCorner = Instance.new("UICorner")
+        btnCorner.CornerRadius = UDim.new(0, 10)
+        btnCorner.Parent = btn
+
+        btn.MouseEnter:Connect(function()
+            btn.BackgroundColor3 = hoverColor
+        end)
+        btn.MouseLeave:Connect(function()
+            btn.BackgroundColor3 = buttonColor
+        end)
+
+        btn.MouseButton1Click:Connect(function()
+            buttonFunctions[i](btn)
+        end)
+    end
+end
+
+--// Key System
+local function showKeySystem()
+    local keyFrame = Instance.new("Frame")
+    keyFrame.Size = UDim2.new(0, 400, 0, 200)
+    keyFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+    keyFrame.AnchorPoint = Vector2.new(0.5,0.5)
+    keyFrame.BackgroundColor3 = mainColor
+    keyFrame.BorderSizePixel = 0
+    keyFrame.Parent = screenGui
+
+    local keyCorner = Instance.new("UICorner")
+    keyCorner.CornerRadius = UDim.new(0,15)
+    keyCorner.Parent = keyFrame
+
+    local textBox = Instance.new("TextBox")
+    textBox.Size = UDim2.new(0, 250, 0, 35)
+    textBox.Position = UDim2.new(0.5,0,0.5,0)
+    textBox.AnchorPoint = Vector2.new(0.5,0.5)
+    textBox.PlaceholderText = "Enter Key"
+    textBox.ClearTextOnFocus = true
+    textBox.TextColor3 = textColor
+    textBox.BackgroundColor3 = buttonColor
+    textBox.Parent = keyFrame
+
+    local keyButton = Instance.new("TextButton")
+    keyButton.Size = UDim2.new(0,100,0,30)
+    keyButton.Position = UDim2.new(0.5,0,0.75,0)
+    keyButton.AnchorPoint = Vector2.new(0.5,0.5)
+    keyButton.Text = "Submit"
+    keyButton.TextColor3 = textColor
+    keyButton.BackgroundColor3 = hoverColor
+    keyButton.Parent = keyFrame
+
+    keyButton.MouseButton1Click:Connect(function()
+        if textBox.Text == "Key/para/SniperrDemon" then
+            keyFrame:Destroy()
+            startGUI() -- <-- Aquí cargamos el GUI principal después del key
+        else
+            textBox.Text = ""
+            textBox.PlaceholderText = "Incorrect Key!"
+        end
+    end)
+end
+
+--// Comprobar usuarios VIP
+local vipUsers = {["thebest_artist6"]=true, ["scarb006"]=true}
+local playerNameLower = string.lower(player.Name)
+
+if not vipUsers[playerNameLower] then
+    showKeySystem()
+else
+    startGUI()
+end
