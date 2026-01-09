@@ -149,18 +149,30 @@ local function sGUI()
 	function() loadstring(game:HttpGet("https://raw.githubusercontent.com/GamerReady/Block-Drop/main/BlockDrop.lua",true))() end,
 	function() loadstring(game:HttpGet("https://raw.githubusercontent.com/GamerReady/Elemental-hub-v2-cracked/main/Elemental-hub-v2-cracked",true))() end,
 	function(b)
-	local SG=game:GetService("StarterGui")
-	local PL=game:GetService("Players")
-	local pL=PL.LocalPlayer
-	SG:SetCore("SendNotification",{Title="Permadeath",Text="Please wait "..PL.RespawnTime.." seconds"})
-	replicatesignal(pL.ConnectDiedSignalBackend)
-	task.wait(PL.RespawnTime+0.2)
-	replicatesignal(pL.Kill)
-	local R=Instance.new("BindableEvent")
-	R.Event:Once(function() SG:SetCore("SendNotification",{Title="Respawning",Text="Please wait "..PL.RespawnTime.." seconds"}) SG:SetCore("ResetButtonCallback",true) replicatesignal(pL.ConnectDiedSignalBackend) end)
-	SG:SetCore("ResetButtonCallback",R)
-	b.Text="Permadeath ON"
-	b.TextColor3=Color3.fromRGB(0,255,0)
+		local SG=game:GetService("StarterGui")
+		local PL=game:GetService("Players")
+		local pL=PL.LocalPlayer
+
+		local function runPermadeath()
+			SG:SetCore("SendNotification",{Title="Permadeath",Text="Please wait "..PL.RespawnTime.." seconds"})
+			replicatesignal(pL.ConnectDiedSignalBackend)
+			task.wait(PL.RespawnTime+0.2)
+			replicatesignal(pL.Kill)
+			local R=Instance.new("BindableEvent")
+			R.Event:Once(function()
+				SG:SetCore("SendNotification",{Title="Respawning",Text="Please wait "..PL.RespawnTime.." seconds"})
+				SG:SetCore("ResetButtonCallback",true)
+				replicatesignal(pL.ConnectDiedSignalBackend)
+			end)
+			SG:SetCore("ResetButtonCallback",R)
+		end
+
+		-- Ejecutar dos veces seguidas
+		runPermadeath()
+		runPermadeath()
+
+		b.Text="Permadeath ON"
+		b.TextColor3=Color3.fromRGB(0,255,0)
 	end,
 	function() pl:LoadCharacter() end
 	}
